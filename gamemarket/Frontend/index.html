@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GameMarket — Sua Shoppe de Games</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="database.js"></script>
+<script src="script.js"></script>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       TELA DE LOGIN (sobrepõe tudo)
+  ═══════════════════════════════════════ -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-bg-effects">
+      <div class="login-orb login-orb-1"></div>
+      <div class="login-orb login-orb-2"></div>
+      <div class="login-orb login-orb-3"></div>
+    </div>
+    <div class="login-box">
+      <div class="login-logo">
+        <span class="logo-icon"><i class="fas fa-gamepad"></i></span>
+        <span class="logo-text">Game<span class="accent">Market</span></span>
+      </div>
+      <p class="login-tagline">Sua shoppe de games com gamificação</p>
+
+      <!-- Tabs Login / Criar Conta -->
+      <div class="login-tabs">
+        <button class="login-tab active" data-tab="login">Entrar</button>
+        <button class="login-tab" data-tab="register">Criar Conta</button>
+      </div>
+
+      <!-- Formulário de Login -->
+      <form class="login-form active" id="form-login" novalidate>
+        <div class="form-group">
+          <label for="login-email"><i class="fas fa-envelope"></i> E-mail</label>
+          <input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email" />
+          <span class="form-error" id="login-email-err"></span>
+        </div>
+        <div class="form-group">
+          <label for="login-password"><i class="fas fa-lock"></i> Senha</label>
+          <div class="input-password-wrap">
+            <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
+            <button type="button" class="btn-toggle-pw" data-target="login-password">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <span class="form-error" id="login-password-err"></span>
+        </div>
+        <button type="submit" class="btn-primary w-full login-submit">
+          <i class="fas fa-right-to-bracket"></i> Entrar
+        </button>
+        <p class="login-hint">Não tem conta? <button type="button" class="btn-link" data-tab="register">Criar agora</button></p>
+      </form>
+
+      <!-- Formulário de Cadastro -->
+      <form class="login-form" id="form-register" novalidate>
+        <div class="form-group">
+          <label for="reg-username"><i class="fas fa-user"></i> Nome de Usuário</label>
+          <input type="text" id="reg-username" placeholder="SeuNickGamer" autocomplete="username" />
+          <span class="form-error" id="reg-username-err"></span>
+        </div>
+        <div class="form-group">
+          <label for="reg-email"><i class="fas fa-envelope"></i> E-mail</label>
+          <input type="email" id="reg-email" placeholder="seu@email.com" autocomplete="email" />
+          <span class="form-error" id="reg-email-err"></span>
+        </div>
+        <div class="form-group">
+          <label for="reg-password"><i class="fas fa-lock"></i> Senha</label>
+          <div class="input-password-wrap">
+            <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+            <button type="button" class="btn-toggle-pw" data-target="reg-password">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <span class="form-error" id="reg-password-err"></span>
+        </div>
+        <button type="submit" class="btn-primary w-full login-submit">
+          <i class="fas fa-user-plus"></i> Criar Conta
+        </button>
+        <p class="login-hint">Já tem conta? <button type="button" class="btn-link" data-tab="login">Entrar</button></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       APP PRINCIPAL (oculto até login)
+  ═══════════════════════════════════════ -->
+  <div id="app" class="app-hidden">
+
+    <div id="toast-container" aria-live="polite"></div>
+
+    <!-- ── HEADER ── -->
+    <header id="main-header">
+      <div class="header-inner container">
+        <a href="#" class="logo" id="btn-go-home" aria-label="GameMarket">
+          <span class="logo-icon"><i class="fas fa-gamepad"></i></span>
+          <span class="logo-text">Game<span class="accent">Market</span></span>
+        </a>
+        <nav class="main-nav" aria-label="Navegação principal">
+          <ul>
+            <li><a href="#" class="nav-link active" data-filter="all">Todos</a></li>
+            <li><a href="#" class="nav-link" data-filter="playstation"><i class="fab fa-playstation"></i> PlayStation</a></li>
+            <li><a href="#" class="nav-link" data-filter="xbox"><i class="fab fa-xbox"></i> Xbox</a></li>
+            <li><a href="#" class="nav-link" data-filter="nintendo">Nintendo</a></li>
+            <li><a href="#" class="nav-link" data-filter="steam"><i class="fab fa-steam"></i> Steam</a></li>
+          </ul>
+        </nav>
+        <div class="header-actions">
+          <button class="icon-btn" id="btn-search" aria-label="Buscar"><i class="fas fa-search"></i></button>
+
+          <!-- Biblioteca -->
+          <button class="icon-btn library-btn" id="btn-library" aria-label="Minha Biblioteca">
+            <i class="fas fa-book-open"></i>
+            <span class="cart-badge" id="library-count">0</span>
+          </button>
+
+          <!-- Carrinho -->
+          <button class="icon-btn cart-btn" id="btn-cart" aria-label="Carrinho">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge hidden" id="cart-count">0</span>
+          </button>
+
+          <button class="btn-profile" id="btn-profile" aria-label="Perfil">
+            <div class="avatar-mini"><i class="fas fa-user"></i></div>
+            <span id="header-username">Jogador</span>
+          </button>
+
+          <!-- Logout -->
+          <button class="icon-btn" id="btn-logout" aria-label="Sair" title="Sair">
+            <i class="fas fa-right-from-bracket"></i>
+          </button>
+
+          <button class="hamburger" id="btn-hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+      <div class="search-bar-wrap" id="search-bar-wrap">
+        <div class="container">
+          <input type="text" id="search-input" placeholder="Buscar jogos, plataformas..." />
+          <button id="btn-search-close"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+      <nav class="mobile-nav" id="mobile-nav">
+        <ul>
+          <li><a href="#" class="nav-link" data-filter="all">🎮 Todos</a></li>
+          <li><a href="#" class="nav-link" data-filter="playstation"><i class="fab fa-playstation"></i> PlayStation</a></li>
+          <li><a href="#" class="nav-link" data-filter="xbox"><i class="fab fa-xbox"></i> Xbox</a></li>
+          <li><a href="#" class="nav-link" data-filter="nintendo">🍄 Nintendo</a></li>
+          <li><a href="#" class="nav-link" data-filter="steam"><i class="fab fa-steam"></i> Steam</a></li>
+          <li><a href="#" id="mobile-library-link">📚 Minha Biblioteca</a></li>
+        </ul>
+      </nav>
+    </header>
+    
+
+    <!-- ── HERO ── -->
+    <section class="hero" id="hero">
+      <div class="hero-slider" id="hero-slider"></div>
+      <div class="hero-dots" id="hero-dots"></div>
+      <button class="hero-arrow hero-prev" id="hero-prev"><i class="fas fa-chevron-left"></i></button>
+      <button class="hero-arrow hero-next" id="hero-next"><i class="fas fa-chevron-right"></i></button>
+    </section>
+
+    <!-- ── LOJA (view padrão) ── -->
+    <div id="view-store">
+      <main class="main-layout container">
+        <aside class="sidebar" id="sidebar">
+          <div class="sidebar-card profile-card">
+            <div class="profile-avatar" id="sidebar-avatar">
+              <i class="fas fa-user"></i>
+              <div class="level-badge" id="sidebar-level-badge">1</div>
+            </div>
+            <h3 id="sidebar-username">Jogador</h3>
+            <p class="level-title" id="sidebar-level-title">Iniciante</p>
+            <div class="xp-section">
+              <div class="xp-labels">
+                <span>XP</span>
+                <span id="xp-text">0 / 50</span>
+              </div>
+              <div class="xp-bar-wrap">
+                <div class="xp-bar" id="xp-bar" style="width:0%"></div>
+              </div>
+            </div>
+            <div class="points-display">
+              <i class="fas fa-coins"></i>
+              <span id="sidebar-points">0</span>
+              <span class="points-label">moedas</span>
+            </div>
+            <!-- Conversão de moedas -->
+            <div class="coins-value" id="coins-value">
+              <i class="fas fa-dollar-sign"></i>
+              <span id="coins-brl">= R$ 0,00</span>
+            </div>
+            <div class="discount-badge" id="discount-badge">
+              <i class="fas fa-tag"></i>
+              <span id="discount-text">1% de desconto</span>
+            </div>
+            <button class="btn-secondary w-full" id="btn-open-profile">Ver Perfil Completo</button>
+          </div>
+
+          <div class="sidebar-card missions-card">
+            <h4 class="card-title">
+              <i class="fas fa-scroll"></i> Missões Diárias
+              <span class="missions-reset" id="missions-reset-time"></span>
+            </h4>
+            <div class="missions-list" id="missions-list"></div>
+            <div class="missions-reward">
+              <i class="fas fa-gift"></i>
+              <span>Complete todas: <strong>+100 moedas</strong></span>
+            </div>
+          </div>
+
+          <div class="sidebar-card leaderboard-card">
+            <h4 class="card-title"><i class="fas fa-trophy"></i> Top Jogadores</h4>
+            <ul class="leaderboard-list" id="leaderboard-list"></ul>
+            <p class="your-rank">Sua posição: <strong id="your-rank">#—</strong></p>
+          </div>
+        </aside>
+
+        <section class="content-area">
+          <div class="filters-bar">
+            <div class="filter-pills" id="filter-pills">
+              <button class="pill active" data-filter="all">Todos</button>
+              <button class="pill" data-filter="playstation"><i class="fab fa-playstation"></i> PS5</button>
+              <button class="pill" data-filter="xbox"><i class="fab fa-xbox"></i> Xbox</button>
+              <button class="pill" data-filter="nintendo">🍄 Nintendo</button>
+              <button class="pill" data-filter="steam"><i class="fab fa-steam"></i> Steam</button>
+            </div>
+            <select class="sort-select" id="sort-select">
+              <option value="default">Ordenar por</option>
+              <option value="price-asc">Menor preço</option>
+              <option value="price-desc">Maior preço</option>
+              <option value="rating">Melhor avaliação</option>
+              <option value="name">A-Z</option>
+            </select>
+          </div>
+          <p class="results-count" id="results-count">Carregando...</p>
+          <div class="games-grid" id="games-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ── BIBLIOTECA (view alternativa) ── -->
+    <div id="view-library" class="view-hidden">
+      <div class="library-page container">
+        <div class="library-header">
+          <h1><i class="fas fa-book-open"></i> Minha Biblioteca</h1>
+          <p id="library-subtitle">Seus jogos adquiridos</p>
+          <button class="btn-secondary" id="btn-back-store">
+            <i class="fas fa-arrow-left"></i> Voltar à Loja
+          </button>
+        </div>
+        <div class="library-grid" id="library-grid"></div>
+      </div>
+    </div>
+
+    <!-- ── FOOTER ── -->
+    <footer class="footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <span class="logo-text">Game<span class="accent">Market</span></span>
+          <p>Sua shoppe de games com a melhor experiência gamer.</p>
+        </div>
+        <div class="footer-links">
+          <h5>Plataformas</h5>
+          <ul>
+            <li><a href="#">PlayStation</a></li>
+            <li><a href="#">Xbox</a></li>
+            <li><a href="#">Nintendo</a></li>
+            <li><a href="#">Steam / PC</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h5>Suporte</h5>
+          <ul>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Contato</a></li>
+            <li><a href="#">Privacidade</a></li>
+            <li><a href="#">Termos</a></li>
+          </ul>
+        </div>
+        <div class="footer-social">
+          <h5>Siga-nos</h5>
+          <div class="social-icons">
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a>
+            <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="#" aria-label="Twitch"><i class="fab fa-twitch"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 GameMarket. Feito com <i class="fas fa-heart" style="color:#ff006e"></i> para gamers.</p>
+      </div>
+    </footer>
+
+  </div><!-- fim #app -->
+
+  <!-- ═══════════════════════════════════════
+       MODAIS
+  ═══════════════════════════════════════ -->
+
+  <!-- Modal Produto -->
+  <div class="modal-overlay" id="modal-product" role="dialog" aria-modal="true">
+    <div class="modal-box modal-product-box">
+      <button class="modal-close" data-modal="modal-product"><i class="fas fa-times"></i></button>
+      <div id="modal-product-content"></div>
+    </div>
+  </div>
+
+  <!-- Modal Checkout -->
+  <div class="modal-overlay" id="modal-checkout" role="dialog" aria-modal="true">
+    <div class="modal-box modal-checkout-box">
+      <button class="modal-close" data-modal="modal-checkout"><i class="fas fa-times"></i></button>
+      <div id="modal-checkout-content"></div>
+    </div>
+  </div>
+
+  <!-- Modal Perfil -->
+  <div class="modal-overlay" id="modal-profile" role="dialog" aria-modal="true">
+    <div class="modal-box modal-profile-box">
+      <button class="modal-close" data-modal="modal-profile"><i class="fas fa-times"></i></button>
+      <div id="modal-profile-content"></div>
+    </div>
+  </div>
+
+  <!-- Modal Level Up -->
+  <div class="modal-overlay" id="modal-levelup" role="dialog" aria-modal="true">
+    <div class="modal-box modal-levelup-box">
+      <div class="levelup-content" id="levelup-content"></div>
+    </div>
+  </div>
+
+  <!-- Modal Gift Card -->
+  <div class="modal-overlay" id="modal-giftcard" role="dialog" aria-modal="true">
+    <div class="modal-box modal-giftcard-box">
+      <button class="modal-close" data-modal="modal-giftcard"><i class="fas fa-times"></i></button>
+      <div id="modal-giftcard-content"></div>
+    </div>
+  </div>
+
+  <!-- Modal Compra Confirmada (com código) -->
+  <div class="modal-overlay" id="modal-purchase-success" role="dialog" aria-modal="true">
+    <div class="modal-box modal-success-box">
+      <div id="modal-success-content"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
